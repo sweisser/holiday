@@ -6,6 +6,7 @@ use spin_sdk::{
     http_component,
 };
 use crate::holidays::compute_holidays;
+use serde_json::json;
 
 pub mod holidays;
 
@@ -16,11 +17,13 @@ fn cloud_start(req: Request) -> Result<Response> {
     let year = get_year_from_query(&req);
     let holidays = compute_holidays(year);
 
-    let body = format!("{:?}", holidays);
+    let holiday_string: String = json!(holidays).to_string();
+    //let holiday_string = format!("{:?}", holidays);
 
     Ok(http::Response::builder()
+        .header("Access-Control-Allow-Origin", "*")
         .status(200)
-        .body(Some(body.into()))?)
+        .body(Some(holiday_string.into()))?)
 }
 
 fn get_year_from_query(req: &Request) -> i32 {

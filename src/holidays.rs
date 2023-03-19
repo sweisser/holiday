@@ -1,5 +1,6 @@
 use chrono::NaiveDate;
 use chrono::Duration;
+use serde::{Serialize, Deserialize};
 
 pub fn compute_holidays(year: i32) -> Holidays {
     let easter = easter_sunday(year);
@@ -63,7 +64,7 @@ fn year_in_range(year: i32) -> bool {
     year >= 1583 && year <= 8202
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Holidays {
     new_years_day: NaiveDate,
     epiphany: NaiveDate,
@@ -80,7 +81,7 @@ pub struct Holidays {
 #[cfg(test)]
 mod test {
     use chrono::NaiveDate;
-    use crate::holidays::{compute_m_and_n, easter_sunday};
+    use crate::holidays::{add_days, compute_holidays, compute_m_and_n, easter_sunday};
 
     #[test]
     fn test_compute_m_and_n() {
@@ -93,12 +94,12 @@ mod test {
 
     #[test]
     fn test_easter_sunday() {
-        assert_eq!(NaiveDate::from_ymd(1583, 04, 10), easter_sunday(1583));
-        assert_eq!(NaiveDate::from_ymd(1723, 03, 28), easter_sunday(1723));
-        assert_eq!(NaiveDate::from_ymd(2017, 04, 16), easter_sunday(2017));
-        assert_eq!(NaiveDate::from_ymd(2020, 04, 12), easter_sunday(2020));
-        assert_eq!(NaiveDate::from_ymd(2021, 04, 04), easter_sunday(2021));
-        assert_eq!(NaiveDate::from_ymd(8202, 04, 18), easter_sunday(8202));
+        assert_eq!(NaiveDate::from_ymd_opt(1583, 04, 10).unwrap(), easter_sunday(1583));
+        assert_eq!(NaiveDate::from_ymd_opt(1723, 03, 28).unwrap(), easter_sunday(1723));
+        assert_eq!(NaiveDate::from_ymd_opt(2017, 04, 16).unwrap(), easter_sunday(2017));
+        assert_eq!(NaiveDate::from_ymd_opt(2020, 04, 12).unwrap(), easter_sunday(2020));
+        assert_eq!(NaiveDate::from_ymd_opt(2021, 04, 04).unwrap(), easter_sunday(2021));
+        assert_eq!(NaiveDate::from_ymd_opt(8202, 04, 18).unwrap(), easter_sunday(8202));
     }
 
     #[test]
@@ -111,13 +112,13 @@ mod test {
     #[test]
     fn test_holidays() {
         let holidays = compute_holidays(2020);
-        assert_eq!(NaiveDate::from_ymd(2020, 04, 13), holidays.easter_monday);
+        assert_eq!(NaiveDate::from_ymd_opt(2020, 04, 13).unwrap(), holidays.easter_monday);
     }
 
     #[test]
     fn test_add_days() {
-        let today = NaiveDate::from_ymd(2020, 04, 28);
-        let expected = NaiveDate::from_ymd(2020, 05, 02);
+        let today = NaiveDate::from_ymd_opt(2020, 04, 28).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2020, 05, 02).unwrap();
         assert_eq!(expected, add_days(today, 4));
     }
 }
